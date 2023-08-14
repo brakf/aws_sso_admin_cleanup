@@ -138,13 +138,18 @@ def list_account_assignments(sso_admin_client, instance_arn, permission_set_arn,
 
 
 def delete_account_assignment(sso_admin_client, instance_arn, permission_set_arn, account_id, principal_type, principal_id):
-    sso_admin_client.delete_account_assignment(
-        InstanceArn=instance_arn,
-        AccountId=account_id,
-        PermissionSetArn=permission_set_arn,
-        PrincipalType=principal_type,
-        PrincipalId=principal_id
-    )
+    try:
+        sso_admin_client.delete_account_assignment(
+            InstanceArn=instance_arn,
+            TargetId=account_id,  # Use TargetId instead of AccountId
+            TargetType='AWS_ACCOUNT',  # Add TargetType parameter
+            PermissionSetArn=permission_set_arn,
+            PrincipalType=principal_type,
+            PrincipalId=principal_id
+        )
+        print(f"Deleted assignment for AccountId={account_id}, PrincipalType={principal_type}, PrincipalId={principal_id}, PermissionSetArn={permission_set_arn}")
+    except Exception as e:
+        print(f"Error deleting assignment for AccountId={account_id}, PrincipalType={principal_type}, PrincipalId={principal_id}. Error: {e}")
 
 def list_permission_sets(sso_admin_client, instance_arn):
     paginator = sso_admin_client.get_paginator('list_permission_sets')
